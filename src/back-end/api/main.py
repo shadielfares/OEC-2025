@@ -1,42 +1,33 @@
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
+from .models import ReportData
 
 
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Adjust this to restrict origins
+    allow_origins=["*"], #Adjust this to restrict origins
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Define a Pydantic model for the request body
-class DisasterData(BaseModel):
-    latitude: float
-    longitude: float
-    disaster_name: str
-
-# Create a POST endpoint
+#Create a POST endpoint
 @app.post("/submit-disaster/")
-async def submit_disaster(data: DisasterData):
+async def submit_disaster(data: ReportData):
     try:
         latitude = data.latitude
         longitude = data.longitude
         disaster_name = data.disaster_name
-
-        print(f"Received - Latitude: {latitude}, Longitude: {longitude}, Disaster: {disaster_name}")
-
-
+        time = data.time
         return {
-            "message": "Disaster data received successfully",
-            "received_data": {
+            {
                 "latitude": latitude,
                 "longitude": longitude,
                 "disaster_name": disaster_name,
-            },
+                "time": time
+            }
         }
 
     except Exception as e:
