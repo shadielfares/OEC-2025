@@ -1,6 +1,8 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from .models import ReportData
+from bson import ObjectId
+from .database import db
+from .models import ReportData, Categories
 
 
 app = FastAPI()
@@ -13,34 +15,50 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 #Submit a new report
 @app.post("/submit")
 async def submit_disaster(data: ReportData):
     try:
+        print("Parsed data:", data)
         latitude = data.latitude
         longitude = data.longitude
         disaster_name = data.disaster_name
         time = data.time
-        #check if category exists in mongo if not, fix that
-        #else, continue
-        #add to mongo db
-        return {
-            {
-               "status": "ok"
-            }
+
+        categoryDoc = db.categories.find_one({"name" : "only"})
+        print("help", categoryDoc)
+        if (disaster_name not in categoryDoc.data):
+            pass
+        else:
+            arr = categoryDoc.data
+            arr.append("disaster_name")
+            newSize = categoryDoc.size
+            newSize += 1
+            db.categories.update_one({"name": "only"},
+                                     {"data": arr,
+                                      "size": newSize})
+        
+        report = {
+            "latitude": latitude,
+            "longitude": longitude,
+            "disaster_name": disaster_name,
+            "time": time
         }
+        print("Data to insert:", report)
+        await db.reports.insert_one(report)
+
+        return {"status": "ok"}
 
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
-    
+
 @app.get("/all")
 async def get_all():
     try:
-        #get all documents from mongodb
-        #get take out types document
-
-        #return the results
-        print("change this")
+        reports = db.reports.find()
+        results = await reports.to_list(length=None)
+        return results
 
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -48,10 +66,10 @@ async def get_all():
 @app.get("/categories")
 async def get_categories():
     try:
-        #find document with specific id for the categories in mongo
-        # return that document
-        #size +=1 
-        print("change this")
+        categories = db.categories.find()
+        results = await categories.to_list(length=None)
+        return results
 
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+    
