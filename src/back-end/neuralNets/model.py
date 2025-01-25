@@ -76,7 +76,7 @@ class CovidPointsDataset(Dataset):
         #day, lat, lon
         d, lat_s, lon_s = self.samples[idx]
         #keeps day as shape (1,) for convenience
-        return torch.tensor([d]), torch.tensor([lat_s, lon_s])
+        return torch.tensor([d], dtype=torch.float32), torch.tensor([lat_s, lon_s], dtype=torch.float32)
 
 #Instantiate
 train_dataset = CovidPointsDataset(df_train)
@@ -131,6 +131,9 @@ class Discriminator(nn.Module):
 G = Generator(noise_dim=noise_dim, hidden_dim=64)
 D = Discriminator(hidden_dim=64)
 
+#Ensure consistent tensor dtype for all inputs and model layers
+G = G.float()
+D = D.float()
 
 
 #___________________Training__________________________________
@@ -141,7 +144,7 @@ adversarial_loss = nn.BCEWithLogitsLoss()
 optimizer_G = optim.Adam(G.parameters(), lr=lr)
 optimizer_D = optim.Adam(D.parameters(), lr=lr)
 
-epochs = 10
+epochs = 2
 
 
 #Training loop
@@ -153,14 +156,14 @@ for epoch in range(epochs):
         D.zero_grad()
         
         # 1) Real samples
-        real_labels = torch.ones(batch_size_real, 1)
+        real_labels = torch.ones(batch_size_real, 1, dtype=torch.float32)
         pred_real = D(day_cond, latlon_real)
         loss_real = adversarial_loss(pred_real, real_labels)
         
         # 2) Fake samples
-        z = torch.randn(batch_size_real, noise_dim)  # random noise
+        z = torch.randn(batch_size_real, noise_dim, dtype=torch.float32)  # random noise
         latlon_fake = G(day_cond, z)
-        fake_labels = torch.zeros(batch_size_real, 1)
+        fake_labels = torch.zeros(batch_size_real, 1, dtype=torch.float32)
         pred_fake = D(day_cond, latlon_fake.detach())  # detach so G not updated here
         loss_fake = adversarial_loss(pred_fake, fake_labels)
         
@@ -172,7 +175,7 @@ for epoch in range(epochs):
         # Train GENERATOR
         G.zero_grad()
         # Generate again
-        z = torch.randn(batch_size_real, noise_dim)
+        z = torch.randn(batch_size_real, noise_dim, dtype=torch.float32)
         latlon_fake = G(day_cond, z)
         # We want D to think these are real => label=1
         pred_fake_for_G = D(day_cond, latlon_fake)
@@ -183,20 +186,15 @@ for epoch in range(epochs):
     print(f"Epoch [{epoch+1}/{epochs}] | D_loss: {d_loss.item():.4f} | G_loss: {g_loss.item():.4f}")
 
 
-
 #Generating future data
-future_day_index = 251
-future_day_scaled = scale_day(future_day_index)  # same formula as above
-
-#Generating the future points
 def generate_cases_for_day(day_index, N_cases=100):
     #1) scale day
     d_scaled = scale_day(day_index)
     # turn it into a tensor shape (N_cases, 1)
-    d_cond = torch.tensor([[d_scaled]]).repeat(N_cases, 1)
+    d_cond = torch.tensor([[d_scaled]], dtype=torch.float32).repeat(N_cases, 1)
     
     #2) random noise
-    z = torch.randn(N_cases, noise_dim)
+    z = torch.randn(N_cases, noise_dim, dtype=torch.float32)
     
     #3) generate scaled lat/lon
     latlon_fake_scaled = G(d_cond, z).detach()  # shape (N_cases, 2)
@@ -214,12 +212,6 @@ def generate_cases_for_day(day_index, N_cases=100):
 predicted_points_day_251 = generate_cases_for_day(251, N_cases=100)
 print(predicted_points_day_251[:5])
 
-
-#Saving the models
-torch.save(G.state_dict(), "generator.pth")
-torch.save(D.state_dict(), "discriminator.pth")
-
-
 #Createing the CSV for MapBox
 all_future_points = []
 for future_day in range(251, 261):  #day 251..260
@@ -234,4 +226,3 @@ for future_day in range(251, 261):  #day 251..260
 
 df_future = pd.DataFrame(all_future_points)
 df_future.to_csv("future_predictions.csv", index=False)
-
