@@ -1,3 +1,4 @@
 src/back-end/.venv
 src/back-end/api/__pycache__
 src/frontendf/oec/node_modules
+src/back-end/neuralNets/data/covid_data.csv
