@@ -1,0 +1,134 @@
+#map-container {
+    width: 100%;
+    height: 100%;
+}
+
+.title {
+    margin: auto;
+    color: whitesmoke;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.title h1{
+    font-size: 4.5vw;
+    margin-bottom: 0;
+}
+
+.title h3 {
+    font-size: 1vw;
+    margin-top: 0;
+}
+
+.map-div{
+    width: 80%;
+    height: 70vh;
+    margin: auto;
+    border-radius: 2vw;
+    overflow: hidden;
+    margin-bottom:10%;
+}
+
+.page{
+    height: fit-content;
+    max-width: 100vw;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #111111;
+}
+
+.toggle-buttons {
+    margin: auto;
+    display: flex;
+    width: 20%;
+    height: 2%;
+    justify-content: space-between;
+    margin-bottom: 1%;
+}
+
+button {
+    padding: 10px 20px;
+    border: 2px solid;
+    background-color: transparent;
+    color: #404040;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    font-size: 0.9vw;
+    font-weight: 525;
+    width: 50%;
+}
+
+button:hover {
+    background-color: #404040;
+    color: whitesmoke;
+}
+
+button.active {
+    background-color: #404040;
+    color: whitesmoke;
+    border-color: #404040;
+}
+
+button:not(.active) {
+    background-color: #6b6b6b; /* Inactive button is lighter */
+    color: whitesmoke; /* Text color for inactive button */
+    border-color: #6b6b6b;
+}
+
+.user-div{
+    width: 80%;
+    height: 70vh;
+    margin: auto;
+    border-radius: 2vw;
+    overflow: hidden;
+    margin-bottom:10%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.user-map{
+    width: 60%;
+    height: 70vh;
+}
+
+.Form{
+    width: 30%;
+    height: fit-content;
+    color: whitesmoke;
+    padding-bottom: 10%;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    font-size: 16px;
+    display: block;
+    margin-bottom: 5px;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 0.5vw;
+    margin-bottom: 10px;
+}
+
+.form-group button{
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 0.5vw;
+    cursor: pointer;
+}
