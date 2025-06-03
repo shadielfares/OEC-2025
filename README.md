@@ -6,20 +6,18 @@ This project aims to build better communication between Canadians during times o
 
 ## To run our project:
 in the backend directory
-'''
-Python -m venv .venv
-'''
-'''
-.venv\Scripts\Activate.ps1
-'''
-'''
-uvicorn api.main:app --reload
-'''
+```
+python3 -m venv .venv
 
-in the front-end directory
-'''
+.venv\Scripts\Activate.ps1
+
+uvicorn api.main:app --reload
+
+#In the front-end directory
+
 npm run dev
-'''
+```
+
 ## Tech-Stack + Data Sources:
 We built a react app using Vite and utilized FastAPI to communicate with MapBox to visualize the data geographically. We used Pytorch to build our AI model and used COVID-19 data from the government of Ontario to train it. The wild fire data was collected from the Canadian National Forestry Database and the Earthquake data was collected from the Government of Canada site.
 
